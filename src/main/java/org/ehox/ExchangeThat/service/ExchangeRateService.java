@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ehox.ExchangeThat.exception.BadRequestException;
 import org.ehox.ExchangeThat.exception.RemoteServerException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,12 +20,25 @@ public class ExchangeRateService {
     public static final String REMOTE_SERVER_EXCEPTION = "Exchange rate server returned server error 500";
     private final RestTemplate restTemplate;
 
+    /**
+     * Gets single Exchange Rate for two currencies.
+     * @param from From currency
+     * @param to To currency
+     * @return {@link SingleExchangeRate} instance result
+     */
+    @Cacheable(value = "exchange_rate_cache", key = "{#from, #to}")
     public SingleExchangeRate getSingleExchangeRate(@NonNull String from, @NonNull String to) {
         var result = restTemplate.getForEntity(EXCHANGE_RATE_URL, ServerExchangeRateResponse.class, from, to);
         validateResponse(result);
         return toExchangeRate(from, to, result);
     }
 
+    /**
+     * Gets base Exchange Rate from a base currency to all available currencies.
+     * @param base  the base currency
+     * @return  {@link BaseExchangeRate} instance result
+     */
+    @Cacheable(value = "exchange_rate_cache", key = "{#base}")
     public BaseExchangeRate getBaseExchangeRate(@NonNull String base){
         var result = restTemplate.getForEntity(BASE_EXCHANGE_RATE_URL, BaseExchangeRate.class, base);
         validateResponse(result);
