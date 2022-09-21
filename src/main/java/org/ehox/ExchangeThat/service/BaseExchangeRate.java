@@ -5,12 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
+import java.util.Map;
+
 @NoArgsConstructor
-@AllArgsConstructor
+@Data
 @Builder
-public class ExchangeRate {
-    private String from;
-    private  String to;
-    private  Double value;
+@AllArgsConstructor
+public class BaseExchangeRate {
+    private String base;
+    private String date;
+    private Map<String, Float> rates;
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class ServerExchangeRateResponse {
     private boolean success;
+    private String date;
     private InfoResponse info;
     private QueryResponse query;
 

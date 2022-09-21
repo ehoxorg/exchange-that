@@ -16,15 +16,22 @@ public class ExchangeRateService {
     private static final String EXCHANGE_RATE_URL = "https://api.exchangerate.host/convert?from={from}&to={to}";
     private static final String BAD_REQUEST_EXCEPTION = "Call to remote server was a bad request 400";
     private static final String REMOTE_SERVER_EXCEPTION = "Exchange rate server returned server error 500";
+    private static final String BASE_EXCHANGE_RATE_URL = "https://api.exchangerate.host/latest?base={base}";
     private final RestTemplate restTemplate;
 
-    public ExchangeRate getExchangeRate(@NonNull String from, @NonNull String to) {
+    public SingleExchangeRate getSingleExchangeRate(@NonNull String from, @NonNull String to) {
         var result = restTemplate.getForEntity(EXCHANGE_RATE_URL, ServerExchangeRateResponse.class, from, to);
         validateResponse(result);
         return toExchangeRate(from, to, result);
     }
 
-    private ExchangeRate toExchangeRate(String from, String to, ResponseEntity<ServerExchangeRateResponse> result) {
+    public BaseExchangeRate getBaseExchangeRate(@NonNull String base){
+        var result = restTemplate.getForEntity(BASE_EXCHANGE_RATE_URL, BaseExchangeRate.class, base);
+        validateResponse(result);
+        return result.getBody();
+    }
+
+    private SingleExchangeRate toExchangeRate(String from, String to, ResponseEntity<ServerExchangeRateResponse> result) {
         var responseBody = result.getBody();
         boolean fromEquals = responseBody.getQuery().getFrom().equals(from);
         boolean toEquals = responseBody.getQuery().getTo().equals(to);
@@ -34,8 +41,9 @@ public class ExchangeRateService {
         if(!responseBody.isSuccess()) {
             throw new IllegalStateException("Response was not successful!");
         }
-        return ExchangeRate.builder()
+        return SingleExchangeRate.builder()
                 .value(responseBody.getInfo().getRate())
+                .date(responseBody.getDate())
                 .from(from)
                 .to(to)
                 .build();
