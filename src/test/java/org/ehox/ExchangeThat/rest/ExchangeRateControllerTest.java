@@ -1,43 +1,49 @@
 package org.ehox.ExchangeThat.rest;
 
-import org.ehox.ExchangeThat.service.BaseExchangeRate;
-import org.ehox.ExchangeThat.service.SingleExchangeRate;
+import org.ehox.ExchangeThat.service.ExchangeRateService;
+import org.ehox.ExchangeThat.service.ServerExchangeRateResponse;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDate;
+import static org.ehox.ExchangeThat.service.ExchangeRateService.EXCHANGE_RATE_URL;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@SpringBootTest
 public class ExchangeRateControllerTest {
-    @LocalServerPort
-    private int port;
-
     @Autowired
-    private TestRestTemplate restTemplate;
+    private MockMvc mockMvc;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @InjectMocks
+    private ExchangeRateService rateService;
 
     @Test
-    public void getSingleExchangeRate() {
-        var result = this.restTemplate.getForObject("http://localhost:" + port + "/exchange?from=EUR&to=USD",
-                SingleExchangeRate.class);
-        assertEquals(LocalDate.now().toString(), result.getDate());
-        assertEquals("EUR", result.getFrom());
-        assertEquals("USD", result.getTo());
-
-        assertNotNull(result.getValue());
+    @DisplayName("Get Single ExchangeRate Returns Bad Request when called with incorrect from-value")
+    public void getSingleExchangeRateReturnsBadRequestIncorrectFrom() throws Exception {
+        Mockito.when(restTemplate.getForEntity(EXCHANGE_RATE_URL, ServerExchangeRateResponse.class, "incorrect", "USD"))
+                .thenReturn(new ResponseEntity<>(new ServerExchangeRateResponse(), HttpStatus.BAD_REQUEST));
+        this.mockMvc.perform(get("/exchange?from=incorrect&to=USD")).andExpect(status().isBadRequest());
     }
 
     @Test
-    public void getBaseExchangeRate() {
-        var result = this.restTemplate.getForObject("http://localhost:" + port + "/exchange/USD",
-                BaseExchangeRate.class);
-        assertEquals("USD", result.getBase());
-        assertEquals(LocalDate.now().toString(), result.getDate());
-        assertNotNull(result.getRates());
+    @DisplayName("Get Single ExchangeRate Returns Bad Request when called with incorrect to-value")
+    public void getSingleExchangeRateReturnsBadRequestIncorrectTo() throws Exception {
+        Mockito.when(restTemplate.getForEntity(EXCHANGE_RATE_URL, ServerExchangeRateResponse.class, "EUR", "incorrect"))
+                .thenReturn(new ResponseEntity<>(new ServerExchangeRateResponse(), HttpStatus.BAD_REQUEST));
+        this.mockMvc.perform(get("/exchange?from=EUR&to=incorrect")).andExpect(status().isBadRequest());
     }
 }

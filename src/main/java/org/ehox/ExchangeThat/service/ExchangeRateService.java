@@ -13,10 +13,10 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 @Slf4j
 public class ExchangeRateService {
-    private static final String EXCHANGE_RATE_URL = "https://api.exchangerate.host/convert?from={from}&to={to}";
-    private static final String BAD_REQUEST_EXCEPTION = "Call to remote server was a bad request 400";
-    private static final String REMOTE_SERVER_EXCEPTION = "Exchange rate server returned server error 500";
-    private static final String BASE_EXCHANGE_RATE_URL = "https://api.exchangerate.host/latest?base={base}";
+    public static final String EXCHANGE_RATE_URL = "https://api.exchangerate.host/convert?from={from}&to={to}";
+    public static final String BASE_EXCHANGE_RATE_URL = "https://api.exchangerate.host/latest?base={base}";
+    public static final String BAD_REQUEST_EXCEPTION = "Call to remote server was a bad request 400";
+    public static final String REMOTE_SERVER_EXCEPTION = "Exchange rate server returned server error 500";
     private final RestTemplate restTemplate;
 
     public SingleExchangeRate getSingleExchangeRate(@NonNull String from, @NonNull String to) {
