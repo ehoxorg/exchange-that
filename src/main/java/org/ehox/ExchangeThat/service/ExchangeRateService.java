@@ -1,0 +1,63 @@
+package org.ehox.ExchangeThat.service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.ehox.ExchangeThat.exception.BadRequestException;
+import org.ehox.ExchangeThat.exception.RemoteServerException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class ExchangeRateService {
+    private static final String EXCHANGE_RATE_URL = "https://api.exchangerate.host/convert?from={from}&to={to}";
+    private static final String BAD_REQUEST_EXCEPTION = "Call to remote server was a bad request 400";
+    private static final String REMOTE_SERVER_EXCEPTION = "Exchange rate server returned server error 500";
+    private final RestTemplate restTemplate;
+
+    public ExchangeRate getExchangeRate(@NonNull String from, @NonNull String to) {
+        var result = restTemplate.getForEntity(EXCHANGE_RATE_URL, ServerExchangeRateResponse.class, from, to);
+        validateResponse(result);
+        return toExchangeRate(from, to, result);
+    }
+
+    private ExchangeRate toExchangeRate(String from, String to, ResponseEntity<ServerExchangeRateResponse> result) {
+        var responseBody = result.getBody();
+        boolean fromEquals = responseBody.getQuery().getFrom().equals(from);
+        boolean toEquals = responseBody.getQuery().getTo().equals(to);
+        if (!fromEquals || !toEquals) {
+            throw new IllegalStateException("From or To variables not matching!");
+        }
+        if(!responseBody.isSuccess()) {
+            throw new IllegalStateException("Response was not successful!");
+        }
+        return ExchangeRate.builder()
+                .value(responseBody.getInfo().getRate())
+                .from(from)
+                .to(to)
+                .build();
+    }
+
+    private void validateResponse(ResponseEntity<?> result) {
+        if(result.getStatusCode().is5xxServerError()) {
+            logAndThrow(REMOTE_SERVER_EXCEPTION, RemoteServerException.class);
+        }
+        if(result.getStatusCode().is4xxClientError()) {
+            logAndThrow(BAD_REQUEST_EXCEPTION, BadRequestException.class);
+        }
+    }
+
+    private void logAndThrow(String msg, Class<? extends RuntimeException> e) {
+        log.error(msg);
+        try {
+            var cons = e.getConstructor(String.class);
+            cons.setAccessible(true);
+            throw cons.newInstance(msg);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+}
