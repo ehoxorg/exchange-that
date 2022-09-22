@@ -5,8 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ehox.ExchangeThat.exception.BadRequestException;
 import org.ehox.ExchangeThat.exception.RemoteServerException;
-import org.ehox.ExchangeThat.rest.BaseExchangeRate;
-import org.ehox.ExchangeThat.rest.SingleExchangeRate;
+import org.ehox.ExchangeThat.rest.dto.BaseExchangeRateDTO;
+import org.ehox.ExchangeThat.rest.dto.SingleExchangeRateDTO;
+import org.ehox.ExchangeThat.service.response.ExchangeRateRemoteResponse;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,11 +27,11 @@ public class ExchangeRateService {
      * Gets single Exchange Rate for two currencies.
      * @param from From currency
      * @param to To currency
-     * @return {@link SingleExchangeRate} instance result
+     * @return {@link SingleExchangeRateDTO} instance result
      */
     @Cacheable(value = "exchange_rate_cache", key = "{#from, #to}")
-    public SingleExchangeRate getSingleExchangeRate(@NonNull String from, @NonNull String to) {
-        var result = restTemplate.getForEntity(EXCHANGE_RATE_URL, RemoteExchangeRateResponse.class, from, to);
+    public SingleExchangeRateDTO getSingleExchangeRate(@NonNull String from, @NonNull String to) {
+        var result = restTemplate.getForEntity(EXCHANGE_RATE_URL, ExchangeRateRemoteResponse.class, from, to);
         validateResponse(result);
         return toExchangeRate(from, to, result);
     }
@@ -38,16 +39,16 @@ public class ExchangeRateService {
     /**
      * Gets base Exchange Rate from a base currency to all available currencies.
      * @param base  the base currency
-     * @return  {@link BaseExchangeRate} instance result
+     * @return  {@link BaseExchangeRateDTO} instance result
      */
     @Cacheable(value = "exchange_rate_cache", key = "{#base}")
-    public BaseExchangeRate getBaseExchangeRate(@NonNull String base){
-        var result = restTemplate.getForEntity(BASE_EXCHANGE_RATE_URL, BaseExchangeRate.class, base);
+    public BaseExchangeRateDTO getBaseExchangeRate(@NonNull String base){
+        var result = restTemplate.getForEntity(BASE_EXCHANGE_RATE_URL, BaseExchangeRateDTO.class, base);
         validateResponse(result);
         return result.getBody();
     }
 
-    private SingleExchangeRate toExchangeRate(String from, String to, ResponseEntity<RemoteExchangeRateResponse> result) {
+    private SingleExchangeRateDTO toExchangeRate(String from, String to, ResponseEntity<ExchangeRateRemoteResponse> result) {
         var responseBody = result.getBody();
         boolean fromEquals = responseBody.getQuery().getFrom().equals(from);
         boolean toEquals = responseBody.getQuery().getTo().equals(to);
@@ -57,7 +58,7 @@ public class ExchangeRateService {
         if(!responseBody.isSuccess()) {
             throw new IllegalStateException("Response was not successful!");
         }
-        return SingleExchangeRate.builder()
+        return SingleExchangeRateDTO.builder()
                 .value(responseBody.getInfo().getRate())
                 .date(responseBody.getDate())
                 .from(from)

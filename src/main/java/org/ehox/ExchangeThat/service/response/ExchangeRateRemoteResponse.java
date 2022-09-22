@@ -1,11 +1,11 @@
-package org.ehox.ExchangeThat.service;
+package org.ehox.ExchangeThat.service.response;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Data
-public class RemoteExchangeRateResponse {
+public class ExchangeRateRemoteResponse {
     private boolean success;
     private String date;
     private InfoResponse info;

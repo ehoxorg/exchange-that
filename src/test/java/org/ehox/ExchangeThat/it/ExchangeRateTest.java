@@ -1,7 +1,7 @@
 package org.ehox.ExchangeThat.it;
 
-import org.ehox.ExchangeThat.rest.BaseExchangeRate;
-import org.ehox.ExchangeThat.rest.SingleExchangeRate;
+import org.ehox.ExchangeThat.rest.dto.BaseExchangeRateDTO;
+import org.ehox.ExchangeThat.rest.dto.SingleExchangeRateDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class ExchangeRateTest {
     @DisplayName("Get Single ExchangeRate is Successful")
     public void getSingleExchangeRateSuccess() {
         var result = this.restTemplate.getForObject("http://localhost:" + port + "/exchange?from=EUR&to=USD",
-                SingleExchangeRate.class);
+                SingleExchangeRateDTO.class);
         assertEquals(LocalDate.now().toString(), result.getDate());
         assertEquals("EUR", result.getFrom());
         assertEquals("USD", result.getTo());
@@ -38,7 +38,7 @@ public class ExchangeRateTest {
     @DisplayName("Get Base ExchangeRate is Successful")
     public void getBaseExchangeRateSuccess() {
         var result = this.restTemplate.getForObject("http://localhost:" + port + "/exchange/USD",
-                BaseExchangeRate.class);
+                BaseExchangeRateDTO.class);
         assertEquals("USD", result.getBase());
         assertEquals(LocalDate.now().toString(), result.getDate());
         assertNotNull(result.getRates());

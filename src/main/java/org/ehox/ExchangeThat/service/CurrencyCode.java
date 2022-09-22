@@ -1,5 +1,8 @@
 package org.ehox.ExchangeThat.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public enum CurrencyCode {
     AED,
     AFN,
@@ -169,5 +172,11 @@ public enum CurrencyCode {
     YER,
     ZAR,
     ZMW,
-    ZWL
+    ZWL;
+
+    public static List<String> toStringList(List<CurrencyCode> currencyCodeList) {
+        return currencyCodeList.stream()
+                .map(c -> c.toString())
+                .collect(Collectors.toList());
+    }
 }

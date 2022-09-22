@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.ehox.ExchangeThat.rest.dto.BaseExchangeRateDTO;
+import org.ehox.ExchangeThat.rest.dto.SingleExchangeRateDTO;
 import org.ehox.ExchangeThat.service.CurrencyCode;
 import org.ehox.ExchangeThat.service.ExchangeRateService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,14 +25,14 @@ public class ExchangeRateController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got exchange rate from one to another currency",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = SingleExchangeRate.class))}),
+                            schema = @Schema(implementation = SingleExchangeRateDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Invalid from OR to currency name supplied",
                     content = @Content),
             @ApiResponse(responseCode = "503", description = "Error in remote server",
                     content = @Content)
     })
     @GetMapping("/exchange")
-    public SingleExchangeRate getSingleExchangeRate(@RequestParam @Parameter(example = "USD") CurrencyCode from, @RequestParam @Parameter(example = "EUR") CurrencyCode to){
+    public SingleExchangeRateDTO getSingleExchangeRate(@RequestParam @Parameter(example = "USD") CurrencyCode from, @RequestParam @Parameter(example = "EUR") CurrencyCode to){
         return rateService.getSingleExchangeRate(from.toString(), to.toString());
     }
 
@@ -38,14 +40,14 @@ public class ExchangeRateController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got all exchange rates for given currency",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = BaseExchangeRate.class))}),
+                            schema = @Schema(implementation = BaseExchangeRateDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Invalid base value supplied",
                     content = @Content),
             @ApiResponse(responseCode = "503", description = "Error in remote server",
                     content = @Content),
     })
     @GetMapping("/exchange/{base}")
-    public BaseExchangeRate getBaseExchangeRate(@PathVariable("base") @Parameter(example = "USD") CurrencyCode base){
+    public BaseExchangeRateDTO getBaseExchangeRate(@PathVariable("base") @Parameter(example = "USD") CurrencyCode base){
         return rateService.getBaseExchangeRate(base.toString());
     }
 }
