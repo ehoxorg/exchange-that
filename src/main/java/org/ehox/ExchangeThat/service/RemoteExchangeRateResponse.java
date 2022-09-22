@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Data
-public class ServerExchangeRateResponse {
+public class RemoteExchangeRateResponse {
     private boolean success;
     private String date;
     private InfoResponse info;

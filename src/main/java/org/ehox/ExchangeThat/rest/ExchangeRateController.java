@@ -1,14 +1,14 @@
 package org.ehox.ExchangeThat.rest;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.ehox.ExchangeThat.service.BaseExchangeRate;
+import org.ehox.ExchangeThat.service.CurrencyCode;
 import org.ehox.ExchangeThat.service.ExchangeRateService;
-import org.ehox.ExchangeThat.service.SingleExchangeRate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,14 +24,14 @@ public class ExchangeRateController {
             @ApiResponse(responseCode = "200", description = "Got exchange rate from one to another currency",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = SingleExchangeRate.class))}),
-            @ApiResponse(responseCode = "400", description = "Invalid from OR to variable value supplied",
+            @ApiResponse(responseCode = "400", description = "Invalid from OR to currency name supplied",
                     content = @Content),
             @ApiResponse(responseCode = "503", description = "Error in remote server",
                     content = @Content)
     })
     @GetMapping("/exchange")
-    public SingleExchangeRate getSingleExchangeRate(@RequestParam String from, @RequestParam String to){
-        return rateService.getSingleExchangeRate(from, to);
+    public SingleExchangeRate getSingleExchangeRate(@RequestParam @Parameter(example = "USD") CurrencyCode from, @RequestParam @Parameter(example = "EUR") CurrencyCode to){
+        return rateService.getSingleExchangeRate(from.toString(), to.toString());
     }
 
     @Operation(summary = "Get all currency exchange rates for a given currency")
@@ -42,10 +42,10 @@ public class ExchangeRateController {
             @ApiResponse(responseCode = "400", description = "Invalid base value supplied",
                     content = @Content),
             @ApiResponse(responseCode = "503", description = "Error in remote server",
-                    content = @Content)
+                    content = @Content),
     })
     @GetMapping("/exchange/{base}")
-    public BaseExchangeRate getBaseExchangeRate(@PathVariable("base") String base){
-        return rateService.getBaseExchangeRate(base);
+    public BaseExchangeRate getBaseExchangeRate(@PathVariable("base") @Parameter(example = "USD") CurrencyCode base){
+        return rateService.getBaseExchangeRate(base.toString());
     }
 }

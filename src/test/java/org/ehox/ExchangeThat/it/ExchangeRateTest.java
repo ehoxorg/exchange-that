@@ -1,7 +1,7 @@
 package org.ehox.ExchangeThat.it;
 
-import org.ehox.ExchangeThat.service.BaseExchangeRate;
-import org.ehox.ExchangeThat.service.SingleExchangeRate;
+import org.ehox.ExchangeThat.rest.BaseExchangeRate;
+import org.ehox.ExchangeThat.rest.SingleExchangeRate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

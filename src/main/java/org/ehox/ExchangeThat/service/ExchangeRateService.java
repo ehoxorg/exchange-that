@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ehox.ExchangeThat.exception.BadRequestException;
 import org.ehox.ExchangeThat.exception.RemoteServerException;
+import org.ehox.ExchangeThat.rest.BaseExchangeRate;
+import org.ehox.ExchangeThat.rest.SingleExchangeRate;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,7 @@ public class ExchangeRateService {
      */
     @Cacheable(value = "exchange_rate_cache", key = "{#from, #to}")
     public SingleExchangeRate getSingleExchangeRate(@NonNull String from, @NonNull String to) {
-        var result = restTemplate.getForEntity(EXCHANGE_RATE_URL, ServerExchangeRateResponse.class, from, to);
+        var result = restTemplate.getForEntity(EXCHANGE_RATE_URL, RemoteExchangeRateResponse.class, from, to);
         validateResponse(result);
         return toExchangeRate(from, to, result);
     }
@@ -45,7 +47,7 @@ public class ExchangeRateService {
         return result.getBody();
     }
 
-    private SingleExchangeRate toExchangeRate(String from, String to, ResponseEntity<ServerExchangeRateResponse> result) {
+    private SingleExchangeRate toExchangeRate(String from, String to, ResponseEntity<RemoteExchangeRateResponse> result) {
         var responseBody = result.getBody();
         boolean fromEquals = responseBody.getQuery().getFrom().equals(from);
         boolean toEquals = responseBody.getQuery().getTo().equals(to);

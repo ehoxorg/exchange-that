@@ -4,7 +4,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import org.ehox.ExchangeThat.service.ExchangeRateService;
-import org.ehox.ExchangeThat.service.ServerExchangeRateResponse;
+import org.ehox.ExchangeThat.service.RemoteExchangeRateResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,8 +54,8 @@ public class ExchangeRateControllerTest {
     @Test
     @DisplayName("Get Single ExchangeRate Returns Bad Request when called with incorrect from-value")
     public void getSingleExchangeRateReturnsBadRequestIncorrectFrom() throws Exception {
-        Mockito.when(restTemplate.getForEntity(EXCHANGE_RATE_URL, ServerExchangeRateResponse.class, "incorrect", "USD"))
-                .thenReturn(new ResponseEntity<>(new ServerExchangeRateResponse(), HttpStatus.BAD_REQUEST));
+        Mockito.when(restTemplate.getForEntity(EXCHANGE_RATE_URL, RemoteExchangeRateResponse.class, "incorrect", "USD"))
+                .thenReturn(new ResponseEntity<>(new RemoteExchangeRateResponse(), HttpStatus.BAD_REQUEST));
         this.mockMvc.perform(get("/exchange?from=incorrect&to=USD")).andExpect(status().isBadRequest());
         assertLogging(ExchangeRateService.BAD_REQUEST_EXCEPTION);
     }
@@ -63,8 +63,8 @@ public class ExchangeRateControllerTest {
     @Test
     @DisplayName("Get Single ExchangeRate Returns Bad Request when called with incorrect to-value")
     public void getSingleExchangeRateReturnsBadRequestIncorrectTo() throws Exception {
-        Mockito.when(restTemplate.getForEntity(EXCHANGE_RATE_URL, ServerExchangeRateResponse.class, "EUR", "incorrect"))
-                .thenReturn(new ResponseEntity<>(new ServerExchangeRateResponse(), HttpStatus.BAD_REQUEST));
+        Mockito.when(restTemplate.getForEntity(EXCHANGE_RATE_URL, RemoteExchangeRateResponse.class, "EUR", "incorrect"))
+                .thenReturn(new ResponseEntity<>(new RemoteExchangeRateResponse(), HttpStatus.BAD_REQUEST));
         this.mockMvc.perform(get("/exchange?from=EUR&to=incorrect")).andExpect(status().isBadRequest());
         assertLogging(ExchangeRateService.BAD_REQUEST_EXCEPTION);
     }
@@ -72,8 +72,8 @@ public class ExchangeRateControllerTest {
     @Test
     @DisplayName("Get Single ExchangeRate Returns Bad Gateway when remote server returns 500")
     public void getSingleExchangeRateReturnsBadGatewayIncorrectTo() throws Exception {
-        Mockito.when(restTemplate.getForEntity(EXCHANGE_RATE_URL, ServerExchangeRateResponse.class, "EUR", "USD"))
-                .thenReturn(new ResponseEntity<>(new ServerExchangeRateResponse(), HttpStatus.INTERNAL_SERVER_ERROR));
+        Mockito.when(restTemplate.getForEntity(EXCHANGE_RATE_URL, RemoteExchangeRateResponse.class, "EUR", "USD"))
+                .thenReturn(new ResponseEntity<>(new RemoteExchangeRateResponse(), HttpStatus.INTERNAL_SERVER_ERROR));
         this.mockMvc.perform(get("/exchange?from=EUR&to=USD")).andExpect(status().isBadGateway());
         assertLogging(ExchangeRateService.REMOTE_SERVER_EXCEPTION);
     }
