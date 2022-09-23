@@ -1,6 +1,10 @@
 # exchange-that
 Currency exchange API.
 
+## Prerequisites
+1. JDK 11 installed
+2. Set up environment variable JAVA_HOME
+
 ## Run in Unix-based machines (Mac, Linux)
 1. Open up a new terminal window.
 2. Paste the following command and press enter:`./mvnw spring-boot:run`
